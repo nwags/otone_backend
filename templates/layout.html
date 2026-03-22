@@ -1,0 +1,137 @@
+<!doctype html>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+        <link rel="icon" type="image/png" href="/static/images/favicon.png">
+        <title>OT.One</title>
+        <link rel="stylesheet" href="/static/main.css">
+    
+        <script type="text/javascript" src="/static/js/communication.js"></script>
+        <script type="text/javascript" src="/static/js/main.js"></script>
+        <script type="text/javascript" src="/static/js/socketHandler.js"></script>
+    </head>
+
+	<body>
+        <!-- EDIT IN PLACE SCRIPTS -->
+        <script type="text/javascript" src="/static/js/sugar.js"></script>
+        <script type="text/javascript" src="/static/js/modals/in-place.js"></script>
+
+        <header>
+            <div class="wrapper">
+                <h1>
+                    <a href="https://github.com/opentrons" target="_blank">
+                        <img src="/static/images/logo.png">
+                    </a>
+                </h1>
+                <nav>
+                    <ul>
+                        <li>
+                            <a href="https://github.com/opentrons" target="_blank">Version:
+                                <span id="version"></span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://mix.bio" target="_blank">Mix.Bio</a>
+                        </li>
+                        <li>
+                            <a href="https://editor.mix.bio" target="_blank">Protocol Editor</a>
+                        </li>
+                    </ul>
+                </nav>
+                <h2>
+                    <a href="#">Status:
+                        <span id="status"></span>
+                    </a>
+                </h2>
+            </div>
+        </header>
+        <section id="input">
+            <form enctype="multipart/form0data" action="" method="get">
+                <button type="submit">Process</button>
+                <input type="file" accept=".json" name="protocol_file" onchange="load_protocol_file(this);"></input>
+            </form>
+        </section>
+        <section id="player">
+            <a class="" href="javascript:void(0);" onclick="stop();">STOP</a>
+            <a class="" href="javascript:void(0);" onclick="resume();">Resume</a>
+            <a class="" href="javascript:void(0);" onclick="pause();">Pause</a>
+            <a class="" href="javascript:void(0);" onclick="erase();">Erase</a>
+        </section>
+        
+        <section id="jog">
+            <section id="quick_buttons">
+                <a class="item-select active" href="javascript:void(0);" onclick="stop();">STOP</a>
+                <span>HOME:</span>
+                <a class="item-select active" href="javascript:void(0);" onclick="home();">ALL</a>
+                <a class="item-select active" href="javascript:void(0);" onclick="home('x');">X</a>
+                <a class="item-select active" href="javascript:void(0);" onclick="home('y');">Y</a>
+                <a class="item-select active" href="javascript:void(0);" onclick="home('z');">Z</a>
+                <a class="item-select active" href="javascript:void(0);" onclick="home('a');">A</a>
+                <a class="item-select active" href="javascript:void(0);" onclick="home('b');">B</a>
+            </section>
+            <section id="jog_xyz">
+                <fieldset>
+                    <legend class="UI-Title">Jog Axis (X-Y-Z)</legend>
+                    <div>
+                        <a class="" href="javascript:void(0);" onclick="step('y',-1);">
+                            <span>&#8593;</span>
+                        </a>
+                        <a class="" href="javascript:void(0);" onclick="step('x',-1);">
+                            <span>&#8592;</span>
+                        </a>
+                        <a class="" href="javascript:void(0);" onclick="step('x',1);">
+                            <span>&#8594;</span>
+                        </a>
+                        <a class="" href="javascript:void(0);" onclick="step('y',1);">
+                            <span>&#8595;</span>
+                        </a>
+                    </div>
+                    <div>
+                        <a class="" href="javascript:void(0);" onclick="step('z',-1);">
+                            <span>&#8593;</span>
+                        </a>
+                        <a class="" href="javascript:void(0);" onclick="step('z',1);">
+                            <span>&#8595;</span>
+                        </a>
+                    </div>
+                    <div>
+                        <span>X:<span id="position_x"></span></span>
+                        <span>Y:<span id="position_y"></span></span>
+                        <span>Z:<span id="position_z"></span></span>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend>Select Increment (mm)</legend>
+                    <div>
+                        <a class="" href="javascript:void(0);" onclick="changeStepSize(this,'xyz',100);">100</a>
+                        <a class="" href="javascript:void(0);" onclick="changeStepSize(this,'xyz',50);">50</a>
+                        <a class="" href="javascript:void(0);" onclick="changeStepSize(this,'xyz',20);">20</a>
+                        <a class="" href="javascript:void(0);" onclick="changeStepSize(this,'xyz',10);">10</a>
+                        <a class="" href="javascript:void(0);" onclick="changeStepSize(this,'xyz',5);">5</a>
+                        <a class="" href="javascript:void(0);" onclick="changeStepSize(this,'xyz',2);">2</a>
+                        <a class="" href="javascript:void(0);" onclick="changeStepSize(this,'xyz',1);">1</a>
+                        <a class="" href="javascript:void(0);" onclick="changeStepSize(this,'xyz',0.5);">0.5</a>
+                        <a class="" href="javascript:void(0);" onclick="changeStepSize(this,'xyz',91);">91</a>
+                        <a class="" href="javascript:void(0);" onclick="changeStepSize(this,'xyz',135);">135</a>
+                    </div>
+                </fieldset>
+            </section>
+        </section>
+        <section id="main">
+            <!-- main window tabs go here, programmatically loaded -->
+            <ul id="main-nav-tabs" class="nav nav-tabs">
+                {% for tt in tabs_folder_names %}
+                <li >
+                    <a href="#" onclick=changeTab({{ tt }});>{{ tt }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+
+            {% block content %}{% endblock %}
+        </section>
+	</body>
+</html>

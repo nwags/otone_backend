@@ -1,0 +1,18 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div  class="block">
+<div id='test-div-1'>
+<h1>START</h1>
+</div>
+{{ tabs_templates }}
+{% for tt in tabs_templates %}
+{% include tt %}
+<p>Something was found here...</p>
+{% endfor %}
+{# % include 'modules/containers_library/html/test.html' % #}
+<div id='test-div-2'>
+<h1>FINISH</h1>
+</div>
+</div>
+{% endblock %}
