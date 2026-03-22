@@ -1,4 +1,4 @@
-import json, collections, subprocess
+import json, collections, subprocess, asyncio
 from autobahn.asyncio.wamp import ApplicationSessionFactory
 from file_io import FileIO
 import script_keeper as sk
@@ -16,7 +16,7 @@ class Dispatcher():
     """
     
 #Special Methods
-    def __init__(self, session):
+    def __init__(self, session,loop):
         """initialize Dispatcher object
         
         """
@@ -24,6 +24,7 @@ class Dispatcher():
         self.head = None
         self.runner = None
         self.caller = session
+        self.loop = loop
         
     def __str__(self):
         return "Dispatcher"
@@ -49,13 +50,15 @@ class Dispatcher():
               'resumeJob' : lambda self: self.head.theQueue.resume_job(),
               'eraseJob' : lambda self: self.runner.insQueue.erase_job(),
               'raw' : lambda self, data: self.head.raw(data),
-              'update' : lambda self, data: self.main.updater(data),
+              
+              'update' : lambda self, data: self.update(data),
 
               'wifimode' : lambda self, data: self.wifi_mode(data),
               'wifiscan' : lambda self, data: self.wifi_scan(data),
               'hostname' : lambda self, data: self.change_hostname(data),
               'poweroff' : lambda self: self.poweroff(),
-              'reboot' : lambda self: self.reboot()
+              'reboot' : lambda self: self.reboot(),
+              'shareinet': lambda self: self.share_inet()
               }
     def home(self, data):
         if debug == True: FileIO.log('dispatcher.home called')
@@ -187,4 +190,9 @@ class Dispatcher():
     def reboot(self):
         sk.reboot()
 
+    def update(self, data):
+        sk.update(data)
+
+    def share_inet(self):
+        sk.share_inet()
     
